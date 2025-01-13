@@ -2,8 +2,8 @@ import numpy as np
 import os
 
 
-INPUT = "/home/user_20/Lab1/Development Kit Lab1/data_input"
-OUTPUT = "/home/user_20/Lab1/Development Kit Lab1/data_output"
+INPUT = "/home/user_20/Labs/Lab1/Development Kit Lab1/data_input"
+OUTPUT = "/home/user_20/Labs/Lab1/Development Kit Lab1/data_output"
 
 # get input mats
 with open(INPUT, 'r') as f:
@@ -27,6 +27,6 @@ my_C = np.matmul(mat_A, mat_B)
 # print(my_C)
 # print(mat_C)
 if np.all(my_C == mat_C):
-    print("> answer ok")
+    print("answer ok")
 else:
-    print("> ANSWER INCORRECT")
+    print("ANSWER INCORRECT")

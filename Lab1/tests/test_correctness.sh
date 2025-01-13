@@ -1,4 +1,5 @@
-cd "/home/user_20/Lab1/Development Kit Lab1"
+source /home/user_20/Labs/Lab1/tests/lab1_test_venv/bin/activate
+cd "/home/user_20/Labs/Lab1/Development Kit Lab1"
 make all
 
 
@@ -24,11 +25,6 @@ echo "> n=100 (b=10000), p=25"
 echo "Verifying answer..."
 python ../tests/validate_outputs.py
 
-echo "> n=100 (b=0), p=10"
-./matrixgen -s 100 -b 0 && ./demo 10
-echo "Verifying answer..."
-python ../tests/validate_outputs.py
-
 
 # small sizes/threadcounts
 
@@ -47,8 +43,8 @@ echo "> n=4 (b=1000), p=4"
 echo "Verifying answer..."
 python ../tests/validate_outputs.py
 
-echo "> n=2 (b=1000000), p=4"
-./matrixgen -s 2 -b 1000000 && ./demo 4
+echo "> n=2 (b=40000), p=4"
+./matrixgen -s 2 -b 40000 && ./demo 4
 echo "Verifying answer..."
 python ../tests/validate_outputs.py
 

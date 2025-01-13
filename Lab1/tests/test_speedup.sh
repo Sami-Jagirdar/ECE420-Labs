@@ -1,4 +1,4 @@
-cd "/home/user_20/Lab1/Development Kit Lab1"
+cd "/home/user_20/Labs/Lab1/Development Kit Lab1"
 make all
 
 echo "n=100"
@@ -33,9 +33,3 @@ echo "> PARALLEL p=64"
 ./demo 64
 echo "> PARALLEL p=1024"
 ./demo 1024
-
-./matrixgen -s 20000
-echo "> SEQUENTIAL"
-./demo_seq
-echo "> PARALLEL p=10000"
-./demo 10000

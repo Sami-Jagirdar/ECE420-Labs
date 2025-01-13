@@ -1,0 +1,6 @@
+Lab1/Development Kit Lab1/data_input
+Lab1/Development Kit Lab1/data_output
+Lab1/Development Kit Lab1/demo
+Lab1/Development Kit Lab1/demo_seq
+Lab1/Development Kit Lab1/matrixgen
+Lab1/tests/lab1_test_venv

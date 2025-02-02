@@ -5,5 +5,8 @@ Lab1/Development Kit Lab1/demo_seq
 Lab1/Development Kit Lab1/matrixgen
 Lab1/tests/lab1_test_venv
 
-Lab2/Development Kit Lab2/democlient
-Lab2/Development Kit Lab2/demoserver
+Lab2/Development Kit Lab2/mystery-executables
+Lab2/Development Kit Lab2/main
+Lab2/Development Kit Lab2/client
+Lab2/Development Kit Lab2/attacker
+Lab2/Development Kit Lab2/server_output_time_aggregated

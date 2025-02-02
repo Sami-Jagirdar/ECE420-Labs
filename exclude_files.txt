@@ -4,3 +4,6 @@ Lab1/Development Kit Lab1/demo
 Lab1/Development Kit Lab1/demo_seq
 Lab1/Development Kit Lab1/matrixgen
 Lab1/tests/lab1_test_venv
+
+Lab2/Development Kit Lab2/democlient
+Lab2/Development Kit Lab2/demoserver

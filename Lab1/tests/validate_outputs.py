@@ -2,8 +2,8 @@ import numpy as np
 import os
 
 
-INPUT = "/home/user_20/Labs/Lab1/Development Kit Lab1/data_input"
-OUTPUT = "/home/user_20/Labs/Lab1/Development Kit Lab1/data_output"
+INPUT = "./data_input"
+OUTPUT = "./data_output"
 
 # get input mats
 with open(INPUT, 'r') as f:

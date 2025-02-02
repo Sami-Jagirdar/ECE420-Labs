@@ -1,0 +1,5 @@
+To compile and run our code:
+1. Run the `matrixgen` executable (not included) to produce input matrices of size `n * n`.
+2. Run `make` to compile our lab code.
+3. Run `./main p`, where `p` is the number of threads.
+  - As per the lab manual, `p` must be a perfect square number and must perfectly divide `n * n` (where `n` is the side length of each matrix).

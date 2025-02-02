@@ -1,3 +1,8 @@
+/*
+Test file to compare having a single r/w lock for the whole array against
+our implementation.
+*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/types.h>
@@ -11,16 +16,13 @@
 #include <sys/time.h>
 #include "timer.h"
 
-// Idea is to have a read write lock on each element of the array since if
-// one element is being written to / read from, the other elements aren't affected
-
 char** theArray;
 int n;
 struct sockaddr_in sock_var;
 int serverFileDescriptor;
 int clientFileDescriptor;
 int i;
-pthread_rwlock_t *rwlocks;
+pthread_rwlock_t rwlock;
 
 struct thread_args {
     int clientFileDescriptor; // client file to send to
@@ -60,15 +62,15 @@ void *RequestHandler(void * arg) {
 
     if (request.is_read) {
         // acquire a read lock and perform read on array element
-        pthread_rwlock_rdlock(rwlocks + request.pos);
+        pthread_rwlock_rdlock(&rwlock);
         getContent(buffer, request.pos, theArray);
-        pthread_rwlock_unlock(rwlocks + request.pos);       
+        pthread_rwlock_unlock(&rwlock);       
     } else {
         // acquire a write lock and perform write on array element
-        pthread_rwlock_wrlock(rwlocks + request.pos);
+        pthread_rwlock_wrlock(&rwlock);
         setContent(request.msg, request.pos, theArray);
         getContent(buffer, request.pos, theArray); //?
-        pthread_rwlock_unlock(rwlocks + request.pos);
+        pthread_rwlock_unlock(&rwlock);
     }
 
     GET_TIME(time_end);
@@ -126,11 +128,7 @@ int main(int argc, char* argv[]) {
     pthread_t tids[COM_NUM_REQUEST];
 
     // Set up r/w lock to protect array
-
-    rwlocks = malloc(n * sizeof(pthread_rwlock_t));
-
-    for (i = 0; i < n; i++)
-        pthread_rwlock_init(rwlocks+i, NULL);
+    pthread_rwlock_init(&rwlock, NULL);
 
     // Set up times mutex for time calculations
     pthread_mutex_init(&times_mutex, NULL);
@@ -164,8 +162,7 @@ int main(int argc, char* argv[]) {
 
     // Free memory
 
-    for (i = 0; i < n; i++)
-        pthread_rwlock_destroy(rwlocks+i);
+    pthread_rwlock_destroy(&rwlock);
 
     pthread_mutex_destroy(&times_mutex);
 

@@ -39,7 +39,6 @@ void record_time(double my_time) {
     pthread_mutex_lock(&times_mutex);
         times[num_times] = my_time;
         num_times++;
-        saveTimes(times, num_times);
     pthread_mutex_unlock(&times_mutex);
 }
 
@@ -141,15 +140,27 @@ int main(int argc, char* argv[]) {
     {
         printf("Server: Socket has been created\n");
         listen(serverFileDescriptor,2000);
-
-        for (i = 0; i < COM_NUM_REQUEST; i++)
+        
+        while (1) 
         {
-            clientFileDescriptor = accept(serverFileDescriptor, NULL, NULL);
-            printf("Connected to client %d, request #%d\n", clientFileDescriptor, i);
+            for (i = 0; i < COM_NUM_REQUEST; i++)
+            {
+                clientFileDescriptor = accept(serverFileDescriptor, NULL, NULL);
+                printf("Connected to client %d, request #%d\n", clientFileDescriptor, i);
 
-            // create thread to handle request
-            pthread_create(&tids[i], NULL, RequestHandler, (void *) (long) clientFileDescriptor);
+                // create thread to handle request
+                pthread_create(&tids[i], NULL, RequestHandler, (void *) (long) clientFileDescriptor);
+            }
+
+            // join all threads and record their runtime
+            for (i = 0; i < COM_NUM_REQUEST; i++)
+                pthread_join(tids[i], NULL);
+
+            // save the aggregated runtime to file and reset latency array
+            saveTimes(times, num_times);
+            num_times = 0;
         }
+        
         close(serverFileDescriptor);
         
     }

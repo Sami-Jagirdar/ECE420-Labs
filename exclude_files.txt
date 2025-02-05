@@ -10,3 +10,4 @@ Lab2/Development Kit Lab2/main
 Lab2/Development Kit Lab2/client
 Lab2/Development Kit Lab2/attacker
 Lab2/Development Kit Lab2/server_output_time_aggregated
+Lab2/Development Kit Lab2/PREV_server_output_time_aggregated

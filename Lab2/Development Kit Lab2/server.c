@@ -49,7 +49,7 @@ void *RequestHandler(void * arg) {
     double time_start, time_end;
 
     read(clientFileDescriptor, clientMessage, COM_BUFF_SIZE);
-    printf("Client %d sent request: %s\n", clientFileDescriptor, clientMessage);
+    // printf("Client %d sent request: %s\n", clientFileDescriptor, clientMessage);
 
     // parse the message
     ClientRequest request;
@@ -66,7 +66,7 @@ void *RequestHandler(void * arg) {
         // acquire a write lock and perform write on array element
         pthread_rwlock_wrlock(rwlocks + request.pos);
         setContent(request.msg, request.pos, theArray);
-        getContent(buffer, request.pos, theArray); //?
+        getContent(buffer, request.pos, theArray);
         pthread_rwlock_unlock(rwlocks + request.pos);
     }
 
@@ -138,7 +138,7 @@ int main(int argc, char* argv[]) {
 
     if (bind(serverFileDescriptor, (struct sockaddr*) &sock_var, sizeof(sock_var)) >= 0)
     {
-        printf("Server: Socket has been created\n");
+        // printf("Server: Socket has been created\n");
         listen(serverFileDescriptor,2000);
         
         while (1) 
@@ -146,7 +146,7 @@ int main(int argc, char* argv[]) {
             for (i = 0; i < COM_NUM_REQUEST; i++)
             {
                 clientFileDescriptor = accept(serverFileDescriptor, NULL, NULL);
-                printf("Connected to client %d, request #%d\n", clientFileDescriptor, i);
+                // printf("Connected to client %d, request #%d\n", clientFileDescriptor, i);
 
                 // create thread to handle request
                 pthread_create(&tids[i], NULL, RequestHandler, (void *) (long) clientFileDescriptor);

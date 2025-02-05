@@ -20,7 +20,7 @@ struct sockaddr_in sock_var;
 int serverFileDescriptor;
 int clientFileDescriptor;
 int i;
-pthread_rwlock_t rwlock;
+pthread_mutex_t *mutexes;
 
 struct thread_args {
     int clientFileDescriptor; // client file to send to
@@ -59,15 +59,15 @@ void *RequestHandler(void * arg) {
 
     if (request.is_read) {
         // acquire a read lock and perform read on array element
-        pthread_rwlock_rdlock(&rwlock);
+        pthread_mutex_lock(mutexes + request.pos);
         getContent(buffer, request.pos, theArray);
-        pthread_rwlock_unlock(&rwlock);       
+        pthread_mutex_unlock(mutexes + request.pos);       
     } else {
         // acquire a write lock and perform write on array element
-        pthread_rwlock_wrlock(&rwlock);
+        pthread_mutex_lock(mutexes + request.pos);
         setContent(request.msg, request.pos, theArray);
         getContent(buffer, request.pos, theArray); //?
-        pthread_rwlock_unlock(&rwlock);
+        pthread_mutex_unlock(mutexes + request.pos);
     }
 
     GET_TIME(time_end);
@@ -125,7 +125,11 @@ int main(int argc, char* argv[]) {
     pthread_t tids[COM_NUM_REQUEST];
 
     // Set up r/w lock to protect array
-    pthread_rwlock_init(&rwlock, NULL);
+
+    mutexes = malloc(n * sizeof(pthread_mutex_t));
+
+    for (i = 0; i < n; i++)
+        pthread_mutex_init(mutexes+i, NULL);
 
     // Set up times mutex for time calculations
     pthread_mutex_init(&times_mutex, NULL);
@@ -171,7 +175,8 @@ int main(int argc, char* argv[]) {
 
     // Free memory
 
-    pthread_rwlock_destroy(&rwlock);
+    for (i = 0; i < n; i++)
+        pthread_mutex_destroy(mutexes+i);
 
     pthread_mutex_destroy(&times_mutex);
 

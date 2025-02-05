@@ -14,5 +14,9 @@ client:
 attacker:
 	$(CC) attacker.c -o attacker -lm
 
+tests:
+	$(CC) server-1rw.c -o server-1rw
+	$(CC) server-mutex.c -o server-mutex
+
 clean:
 	rm -f $(TARGET)

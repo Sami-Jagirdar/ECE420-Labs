@@ -9,6 +9,7 @@ int main(int argc, char* argv[]) {
 
     // variables to store time
     double start, end;
+    double s2, e2;
      
     // variables to store matrix data
     double** G; // matrix
@@ -21,8 +22,8 @@ int main(int argc, char* argv[]) {
     double l_max;
     int kp;
     int l_kp;
-    register double temp;
     register double l_temp; // modified frequently, may improve slightly to use register
+    register double temp;
     double* temp_row;
     int p; // number of threads
 
@@ -98,9 +99,13 @@ int main(int argc, char* argv[]) {
             }
         }
 
+        // #pragma omp master
+        // {
+        //     GET_TIME(s2);
+        // }
         // Jordan Elimination
         for (int k = n - 1; k > 0; k--) {
-            // factor out computation
+            // factor out computation?
             #pragma omp single
             {
                 temp = G[k][n] / G[k][k];
@@ -112,6 +117,11 @@ int main(int argc, char* argv[]) {
                 G[i][k] = 0;
             }
         }
+        // #pragma omp master
+        // {
+        //     GET_TIME(e2);
+        //     printf("J: %f\n", e2 - s2);
+        // }
 
         // Obtain solution
         #pragma omp for

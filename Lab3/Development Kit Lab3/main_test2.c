@@ -1,3 +1,7 @@
+/**
+ * Test with collapsing loop and moving computation into collapsed loop.
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <float.h>
@@ -21,7 +25,6 @@ int main(int argc, char* argv[]) {
     double l_max;
     int kp;
     int l_kp;
-    register double temp;
     register double l_temp; // modified frequently, may improve slightly to use register
     double* temp_row;
     int p; // number of threads
@@ -89,26 +92,19 @@ int main(int argc, char* argv[]) {
             }
 
             // elimination. cant collapse
-            #pragma omp for
+            #pragma omp for collapse(2)
             for (int i = k + 1; i < n; i++) {
-                l_temp = G[i][k] / G[k][k];
                 for (int j = k; j < m; j++) {
-                    G[i][j] = G[i][j] - l_temp * G[k][j];
+                    G[i][j] = G[i][j] - G[i][k] / G[k][k] * G[k][j];
                 }
             }
         }
 
         // Jordan Elimination
         for (int k = n - 1; k > 0; k--) {
-            // factor out computation
-            #pragma omp single
-            {
-                temp = G[k][n] / G[k][k];
-            }
-
             #pragma omp for
             for (int i = 0; i < k; i++) {
-                G[i][n] = G[i][n] - (G[i][k] * temp);
+                G[i][n] = G[i][n] - (G[i][k] / G[k][k] * G[k][n]);
                 G[i][k] = 0;
             }
         }

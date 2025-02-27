@@ -15,15 +15,15 @@ int main() {
     Lab3LoadInput(&G, &n);
     int m = n + 1; // number of columns
 
-    printf("=== ARRAY ===\n");
-    PrintMat(G, n, m);
+    // printf("=== ARRAY ===\n");
+    // PrintMat(G, n, m);
 
     // Gaussian Elimination
     GET_TIME(start);
 
     for (int k = 0; k <= n - 2; k++) { // strange indexing deliberate
 
-        printf("=== ITER %d ===\n", k);
+        // printf("=== ITER %d ===\n", k);
 
         // find row kp with max value in kth column in range [k, n)
         int kp;
@@ -43,8 +43,8 @@ int main() {
         G[k] = G[kp];
         G[kp] = temp_row;
 
-        printf("=== SWAP ===\n");
-        PrintMat(G, n, m);
+        // printf("=== SWAP ===\n");
+        // PrintMat(G, n, m);
 
         // elimination
         for (int i = k + 1; i < n; i++) {
@@ -54,31 +54,29 @@ int main() {
             }
         }
 
-        printf("=== ELIMINATE ===\n");
-        PrintMat(G, n, m);
+        // printf("=== ELIMINATE ===\n");
+        // PrintMat(G, n, m);
     }
 
-    printf("=== AFTER GAUSSIAN ELIMINATION ===\n");
-    PrintMat(G, n, m);
+    // printf("=== AFTER GAUSSIAN ELIMINATION ===\n");
+    // PrintMat(G, n, m);
 
     // Jordan Elimination
 
     for (int k = n - 1; k > 0; k--) {
         for (int i = 0; i < k; i++) {
-            printf("i=%d, k=%d\n", i, k);
             G[i][n] = G[i][n] - (G[i][k] / G[k][k] * G[k][n]);
-            printf("%f\n", G[i][n]);
             G[i][k] = 0;
         }
 
-        printf("=== ELIMINATE k=%d ===\n", k);
-        PrintMat(G, n, m);
+        // printf("=== ELIMINATE k=%d ===\n", k);
+        // PrintMat(G, n, m);
     }
 
     GET_TIME(end);
 
-    printf("=== AFTER JORDAN ELIMINATION ===\n");
-    PrintMat(G, n, m);
+    // printf("=== AFTER JORDAN ELIMINATION ===\n");
+    // PrintMat(G, n, m);
 
     // Obtain solution
     double* x = CreateVec(n);
@@ -86,9 +84,9 @@ int main() {
         x[i] = G[i][n] / G[i][i];
     }
 
-    printf("=== SOLUTION ===\n");
-    PrintVec(x, n);
-    printf("TIME: %f\n", end - start);
+    // printf("=== SOLUTION ===\n");
+    // PrintVec(x, n);
+    // printf("TIME: %f\n", end - start);
 
     Lab3SaveOutput(x, n, end - start);
 

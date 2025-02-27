@@ -6,6 +6,8 @@
 #include "timer.h"
 
 int main() {
+
+    double start, end;
      
     // load input
     double** G;
@@ -17,28 +19,29 @@ int main() {
     PrintMat(G, n, m);
 
     // Gaussian Elimination
+    GET_TIME(start);
+
     for (int k = 0; k <= n - 2; k++) { // strange indexing deliberate
 
         printf("=== ITER %d ===\n", k);
 
-        // find row k_p with max value in kth column in range [k, n)
-        int k_p;
+        // find row kp with max value in kth column in range [k, n)
+        int kp;
         double temp;
         double max_val = -DBL_MAX; // lowest possible value
         for (int p = k; p < n; p++) {
             temp = fabs(G[p][k]);
             if (temp > max_val) {
                 max_val = temp;
-                k_p = p;
+                kp = p;
             }
         }
 
-        // swap row k and row k_p
-        for (int i = 0; i < m; i++) {
-            temp = G[k][i];
-            G[k][i] = G[k_p][i];
-            G[k_p][i] = temp;
-        }
+        // swap row k and row kp
+        double* temp_row;
+        temp_row = G[k];
+        G[k] = G[kp];
+        G[kp] = temp_row;
 
         printf("=== SWAP ===\n");
         PrintMat(G, n, m);
@@ -72,6 +75,8 @@ int main() {
         PrintMat(G, n, m);
     }
 
+    GET_TIME(end);
+
     printf("=== AFTER JORDAN ELIMINATION ===\n");
     PrintMat(G, n, m);
 
@@ -83,6 +88,10 @@ int main() {
 
     printf("=== SOLUTION ===\n");
     PrintVec(x, n);
+    printf("TIME: %f\n", end - start);
 
-    Lab3SaveOutput(x, n, 0);
+    Lab3SaveOutput(x, n, end - start);
+
+    free(G);
+    free(x);
 }

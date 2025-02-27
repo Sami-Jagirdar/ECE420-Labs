@@ -1,12 +1,12 @@
 CC = gcc
 CFLAGS = -g -Wall -Wextra
 TARGET = main
-SRC = main.c
+SRC = main.c Lab3IO.c
 
 all: $(TARGET)
 
 main: $(SRC)
-	$(CC) $(CFLAGS) $(SRC) -o main
+	$(CC) $(CFLAGS) $(SRC) -o main -fopenmp
 
 main_seq: main_seq.c
 	$(CC) $(CFLAGS) main_seq.c Lab3IO.c -o main_seq

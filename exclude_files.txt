@@ -17,3 +17,4 @@ Lab3/Development Kit Lab3/data_input
 Lab3/Development Kit Lab3/datagen
 Lab3/Development Kit Lab3/data_output
 Lab3/Development Kit Lab3/main
+Lab3/tests/lab3_test_venv

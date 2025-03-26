@@ -50,32 +50,35 @@ int main (int argc, char* argv[]){
 
     printf("nodecount=%d\n", nodecount);
     double error;
+    int mpi_size;
+    int my_rank;
+    int my_start;
+    int my_end;
 
     // core calculation
     MPI_Init(&argc, &argv);
 
-    int mpi_size;
-    int my_rank;
+    int* nodecounts = malloc(mpi_size * sizeof(int));
+    int* displacements = malloc(mpi_size * sizeof(int));
+
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-    int my_start;
-    int my_end;
+    // set nodecounts of each proc
+    if (my_rank == 0) {
+        int loc_nodecount_ceil = ceil(nodecount / mpi_size);
 
-    // find nodecounts of each proc
-    int* nodecounts = malloc(mpi_size * sizeof(int));
-    int* displacements = malloc((mpi_size+1) * sizeof(int));
-    int loc_nodecount_ceil = ceil(nodecount / mpi_size);
-
-    if (my_rank != mpi_size - 1) {
-        // first processes get equal portions of nodes
-        nodecounts[my_rank] = loc_nodecount_ceil;
-    } else {
-        // final process gets leftover nodes
-        nodecounts[my_rank] = nodecount - loc_nodecount_ceil * (mpi_size - 1);
+        for (int i = 0; i < mpi_size-1; i++) {
+            nodecounts[i] = loc_nodecount_ceil;
+            displacements[i] = loc_nodecount_ceil * i;
+        }
+        nodecounts[mpi_size-1] = nodecount - loc_nodecount_ceil * (mpi_size - 1);
+        displacements[mpi_size-1] = loc_nodecount_ceil * (mpi_size - 1);
     }
-    displacements[my_rank] = loc_nodecount_ceil * my_rank;
-    displacements[mpi_size] = nodecounts;
+    MPI_Bcast(nodecounts, mpi_size, MPI_INT, 0, MPI_COMM_WORLD);
+    MPI_Bcast(displacements, mpi_size, MPI_INT, 0, MPI_COMM_WORLD);
+
+    // calculate variables for this proc
     my_start = displacements[my_rank];
     my_end = my_start + nodecounts[my_rank];
 
@@ -84,22 +87,24 @@ int main (int argc, char* argv[]){
     printf("hello from rank %d of %d, loc n = %d, disp=%d, [%d, %d)\n",
         my_rank, mpi_size, nodecounts[my_rank], displacements[my_rank], my_start, my_end);
 
-    if (my_rank == 0) {
-        for (i = 0; i < nodecount; i++) {
-            r_pre[i] = r[i];
-            r[i] = 0;
-        }
-    }
+    MPI_Barrier(MPI_COMM_WORLD);
 
     do{
         ++iterationcount;
         /* IMPLEMENT ITERATIVE UPDATE */
 
+        // shift over arrays
+        if (my_rank == 0) {
+            for (i = 0; i < nodecount; i++) {
+                r_pre[i] = r[i];
+                r[i] = 1;
+            }
+        }
         MPI_Bcast(r_pre, nodecount, MPI_DOUBLE, 0, MPI_COMM_WORLD);
         MPI_Bcast(r, nodecount, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-        // printf("rank %d, r[0]=%f\n", my_rank, r[0]);
+        // printf("0rank %d, r[0]=%f\n", my_rank, r[0]);
 
-        for (i = 0; i < loc_nodecount; i++) {
+        for (i = 0; i < nodecounts[my_rank]; i++) {
             // update this r
             double sum = 0.0;
             for (j = 0; j < nodehead[my_start+i].num_in_links; j++) {
@@ -109,17 +114,16 @@ int main (int argc, char* argv[]){
             loc_r[i] = (1.0 - DAMPING_FACTOR) * 1.0/nodecount + DAMPING_FACTOR * sum;   
         }
 
-        // gather results at p0
-        MPI_Gatherv(
+        MPI_Allgatherv(
             loc_r, nodecounts[my_rank], MPI_DOUBLE,
             r, nodecounts, displacements, MPI_DOUBLE,
-            0, MPI_COMM_WORLD
+            MPI_COMM_WORLD
         );
-        if (my_rank == 0) {
-            error = rel_error(r, r_pre, nodecount);
-        }
-        MPI_Bcast(&error, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-    } while(error >= EPSILON);
+
+        // printf("1rank %d, r[0]=%f\n", my_rank, r[0]);
+        // printf("error: %f\n", rel_error(r, r_pre, nodecount));
+
+    } while(rel_error(r, r_pre, nodecount) >= EPSILON);
 
     // free(loc_r);
 

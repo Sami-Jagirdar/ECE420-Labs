@@ -1,3 +1,3 @@
-scp ./data_input_link ./data_output ./datatrim ./main user_20@node1.group20.420.ece.local:/home/user_20/Labs/Lab4/Development_Kit_Lab4/
-scp ./data_input_link ./data_output ./datatrim ./main user_20@node2.group20.420.ece.local:/home/user_20/Labs/Lab4/Development_Kit_Lab4/
-scp ./data_input_link ./data_output ./datatrim ./main user_20@node3.group20.420.ece.local:/home/user_20/Labs/Lab4/Development_Kit_Lab4/
+scp ./data_input_link ./data_input_meta ./data_output ./datatrim ./main user_20@node1.group20.420.ece.local:/home/user_20/Labs/Lab4/Development_Kit_Lab4/
+scp ./data_input_link ./data_input_meta ./data_output ./datatrim ./main user_20@node2.group20.420.ece.local:/home/user_20/Labs/Lab4/Development_Kit_Lab4/
+scp ./data_input_link ./data_input_meta ./data_output ./datatrim ./main user_20@node3.group20.420.ece.local:/home/user_20/Labs/Lab4/Development_Kit_Lab4/

@@ -18,3 +18,9 @@ Lab3/Development Kit Lab3/datagen
 Lab3/Development Kit Lab3/data_output
 Lab3/Development Kit Lab3/main
 Lab3/tests/lab3_test_venv
+
+Lab4/Development_Kit_Lab4/web-Stanford.txt
+Lab4/Development_Kit_Lab4/serialtester
+Lab4/Development_Kit_Lab4/datatrim
+Lab4/Development_Kit_Lab4/data_input_meta
+Lab4/Development_Kit_Lab4/data_output

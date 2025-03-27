@@ -43,6 +43,7 @@ int main (int argc, char* argv[]){
         r[i] = 1.0 / nodecount;
     
     /* INITIALIZE MORE VARIABLES IF NECESSARY */
+    GET_TIME(start);
 
     // core calculation
     do{
@@ -63,9 +64,9 @@ int main (int argc, char* argv[]){
             r[i] = (1.0 - DAMPING_FACTOR) * 1.0/nodecount + DAMPING_FACTOR * sum;   
         }
 
-        printf("ERROR %f\n", rel_error(r, r_pre, nodecount));
-
     }while(rel_error(r, r_pre, nodecount) >= EPSILON);
+
+    GET_TIME(end);
 
     Lab4_saveoutput(r, nodecount, end - start);
 

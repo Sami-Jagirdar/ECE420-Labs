@@ -26,6 +26,22 @@ int main (int argc, char* argv[]){
     double start, end;
     FILE *ip;
 
+    int mpi_size;
+    int my_rank;
+    int my_start;
+    int my_end;
+
+    double loc_sum;
+    int loc_node;
+    int phase_even = 1;
+    double eqn_factor;
+
+    int r_size;
+    int loc_nodecount_most;
+    int * loc_nodecounts;
+    double * loc_r;
+
+
     /* INSTANTIATE MORE VARIABLES IF NECESSARY */
     
     // load data 
@@ -37,29 +53,7 @@ int main (int argc, char* argv[]){
     fclose(ip);
     if (node_init(&nodehead, 0, nodecount)) return 254;
     
-    /* INITIALIZE MORE VARIABLES IF NECESSARY */
-
-    int mpi_size;
-    int my_rank;
-    int my_start;
-    int my_end;
-
-    double loc_sum;
-    int loc_node;
-    int phase_even = 1;
-
-    int r_size;
-    int loc_nodecount_most;
-    int * loc_nodecounts;
-    double * loc_r;
-
-    // initialize arrays
-    r_even = malloc(r_size * sizeof(double));
-    r_odd = malloc(r_size * sizeof(double));
-    
-    iterationcount = 0;
-    for ( i = 0; i < nodecount; ++i)
-        r_odd[i] = 1.0 / nodecount;
+    eqn_factor = (1.0 - DAMPING_FACTOR) * 1.0 / nodecount; // save a computation in the main loop
 
     // core calculation
     GET_TIME(start);
@@ -68,12 +62,18 @@ int main (int argc, char* argv[]){
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &my_rank);
 
-    loc_nodecount_most = nodecount / mpi_size;
+    loc_nodecount_most = ceil((double) nodecount / mpi_size);
     r_size = loc_nodecount_most * mpi_size;
 
+    r_even = malloc(r_size * sizeof(double));
+    r_odd = malloc(r_size * sizeof(double));
+
+    // initialize arrays    
+    iterationcount = 0;
+    for ( i = 0; i < nodecount; ++i)
+        r_odd[i] = 1.0 / nodecount;
+
     // figure out nodecounts and displacements for each process
-    loc_nodecount_most = nodecount / mpi_size; // get rounded counts so we pad r with dummy values
-    r_size = loc_nodecount_most * mpi_size;
     loc_nodecounts = malloc(mpi_size * sizeof(int));
 
     for (int i = 0; i < mpi_size-1; i++) {
@@ -86,8 +86,8 @@ int main (int argc, char* argv[]){
     my_start = my_rank * loc_nodecount_most;
     my_end = my_start + loc_nodecounts[my_rank];
 
-    printf("hello from rank %d of %d, loc n = %d, [%d, %d)\n",
-        my_rank, mpi_size, loc_nodecounts[my_rank], my_start, my_end);
+    // printf("hello from rank %d of %d, loc n = %d, [%d, %d)\n",
+    //     my_rank, mpi_size, loc_nodecounts[my_rank], my_start, my_end);
 
     do {
         ++iterationcount;
@@ -110,21 +110,19 @@ int main (int argc, char* argv[]){
                 loc_sum += r_pre[loc_node] / nodehead[loc_node].num_out_links;
             }
             
-            loc_r[i] = (1.0 - DAMPING_FACTOR) * 1.0/nodecount + DAMPING_FACTOR * loc_sum;   
+            loc_r[i] = eqn_factor + DAMPING_FACTOR * loc_sum;   
         }
 
         // gather result
         MPI_Allgather(
-            loc_r, max_loc_nodecount, MPI_DOUBLE,
-            r, max_loc_nodecount, MPI_DOUBLE,
+            loc_r, loc_nodecount_most, MPI_DOUBLE,
+            r, loc_nodecount_most, MPI_DOUBLE,
             MPI_COMM_WORLD
         );
 
         phase_even = !phase_even;
 
     } while (rel_error(r, r_pre, nodecount) >= EPSILON);
-
-    // free(loc_r);
 
     MPI_Finalize();
     GET_TIME(end);
@@ -133,6 +131,6 @@ int main (int argc, char* argv[]){
 
     // post processing
     node_destroy(nodehead, nodecount);
-    free(r_even); free(r_odd);
+    free(r_even); free(r_odd); free(loc_r); free(loc_nodecounts);
     return 0;
 }

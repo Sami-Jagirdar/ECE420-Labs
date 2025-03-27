@@ -38,6 +38,7 @@ int main (int argc, char* argv[]){
     register double loc_sum; // written to frequently, use register
     int loc_node;
     int phase_even = 1;
+    double eqn_factor;
 
     int * nodecounts;
     int * displacements;
@@ -60,8 +61,9 @@ int main (int argc, char* argv[]){
     iterationcount = 0;
     for ( i = 0; i < nodecount; ++i)
         r_odd[i] = 1.0 / nodecount;
+
+    eqn_factor = (1.0 - DAMPING_FACTOR) * 1.0 / nodecount; // save a computation in the main loop
     
-    // core calculation
     GET_TIME(start);
     MPI_Init(&argc, &argv);
 
@@ -90,6 +92,7 @@ int main (int argc, char* argv[]){
     my_nodecount = nodecounts[my_rank];
     my_endnode = my_nodecount + my_displacement;
 
+    // core calculation
     do {
         ++iterationcount;
 
@@ -111,7 +114,7 @@ int main (int argc, char* argv[]){
                 loc_sum += r_pre[loc_node] / nodehead[loc_node].num_out_links;
             }
             
-            loc_r[i - my_displacement] = (1.0 - DAMPING_FACTOR) * 1.0/nodecount + DAMPING_FACTOR * loc_sum;   
+            loc_r[i - my_displacement] = eqn_factor + DAMPING_FACTOR * loc_sum;   
         }
 
         // gather result
